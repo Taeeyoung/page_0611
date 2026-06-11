@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>writing — 크리에이티브 라이팅 도우미</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c12;
+      --surf1:   #14141e;
+      --surf2:   #1c1c2a;
+      --surf3:   #242434;
+      --border:  #28283c;
+      --accent:  #7c6ffc;
+      --accent2: #22d3ee;
+      --green:   #34d399;
+      --pink:    #f472b6;
+      --amber:   #fbbf24;
+      --text:    #dde1f0;
+      --muted:   #7a7a9a;
+      --radius:  12px;
+      --header-h: 58px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: rgba(20,20,30,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 20px; gap: 14px; z-index: 200;
+    }
+
+    .hub-link {
+      font-size: 0.8rem; font-weight: 700;
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none; white-space: nowrap; flex-shrink: 0;
+      opacity: 0.85; transition: opacity .18s;
+    }
+    .hub-link:hover { opacity: 1; }
+
+    .divider-v {
+      width: 1px; height: 22px;
+      background: var(--border); flex-shrink: 0;
+    }
+
+    .logo {
+      font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      flex-shrink: 0;
+    }
+
+    .top-tabs {
+      display: flex; gap: 4px; overflow-x: auto;
+      scrollbar-width: none; flex: 1;
+    }
+    .top-tabs::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      background: none; border: 1.5px solid transparent;
+      color: var(--muted); padding: 5px 14px;
+      border-radius: 20px; cursor: pointer;
+      font-size: 0.82rem; white-space: nowrap;
+      transition: color .18s, border-color .18s, background .18s;
+      font-family: inherit;
+    }
+    .tab-btn:hover { color: var(--text); background: var(--surf3); }
+    .tab-btn.active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(124,111,252,.12);
+    }
+
+    /* API key area */
+    .api-area {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .api-input {
+      background: var(--surf2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 5px 10px; font-size: 0.78rem;
+      width: 180px; font-family: monospace;
+      outline: none; transition: border-color .18s;
+    }
+    .api-input:focus { border-color: var(--accent); }
+    .api-save-btn {
+      background: rgba(124,111,252,.18); border: 1px solid var(--accent);
+      color: var(--accent); border-radius: 8px;
+      padding: 5px 12px; font-size: 0.78rem; cursor: pointer;
+      font-family: inherit; transition: background .18s;
+      white-space: nowrap;
+    }
+    .api-save-btn:hover { background: rgba(124,111,252,.3); }
+    .api-status {
+      font-size: 0.75rem; color: var(--muted);
+      white-space: nowrap;
+    }
+    .api-status.ok { color: var(--green); }
+    .api-status.err { color: var(--pink); }
+    .api-hint {
+      font-size: 0.7rem; color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* streak badge */
+    .streak-badge {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.78rem; color: var(--amber);
+      flex-shrink: 0; white-space: nowrap;
+    }
+
+    /* ── MAIN ─────────────────────────────── */
+    main {
+      padding-top: calc(var(--header-h) + 24px);
+      padding-bottom: 60px;
+      max-width: 860px; margin: 0 auto;
+      padding-left: 20px; padding-right: 20px;
+    }
+
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+      animation: fadeIn .2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-size: 1.1rem; font-weight: 700;
+      margin-bottom: 20px; color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title span {
+      font-size: 0.8rem; font-weight: 400; color: var(--muted);
+    }
+
+    /* ── CARD ─────────────────────────────── */
+    .card {
+      background: var(--surf1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px 16px;
+      position: relative; overflow: hidden;
+      transition: transform .22s, border-color .22s, box-shadow .22s;
+    }
+    .card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,rgba(124,111,252,.06),rgba(34,211,238,.04));
+      opacity: 0; transition: opacity .22s; pointer-events: none;
+    }
+    .card:hover { transform: translateY(-4px); border-color: rgba(124,111,252,.55); box-shadow: 0 10px 40px rgba(124,111,252,.18); }
+    .card:hover::before { opacity: 1; }
+
+    /* ── TAG ─────────────────────────────── */
+    .tag {
+      display: inline-block;
+      background: rgba(124,111,252,.13); color: var(--accent);
+      border-radius: 6px; padding: 2px 8px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .tag.green  { background: rgba(52,211,153,.1);  color: var(--green); }
+    .tag.cyan   { background: rgba(34,211,238,.1);  color: var(--accent2); }
+    .tag.pink   { background: rgba(244,114,182,.1); color: var(--pink); }
+    .tag.amber  { background: rgba(251,191,36,.1);  color: var(--amber); }
+
+    /* ── CHIP SELECTOR ─────────────────────── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip-label {
+      cursor: pointer;
+    }
+    .chip-label input { display: none; }
+    .chip-label .chip-body {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 20px;
+      border: 1.5px solid var(--border);
+      font-size: 0.83rem; color: var(--muted);
+      transition: border-color .18s, color .18s, background .18s;
+      user-select: none;
+    }
+    .chip-label input:checked + .chip-body {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(124,111,252,.13);
+    }
+    .chip-label:hover .chip-body {
+      border-color: rgba(124,111,252,.4);
+      color: var(--text);
+    }
+
+    /* ── BUTTON ─────────────────────────────── */
+    .btn-primary {
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      border: none; border-radius: 10px;
+      color: #fff; font-weight: 700;
+      padding: 10px 22px; font-size: 0.88rem;
+      cursor: pointer; font-family: inherit;
+      transition: opacity .18s, transform .18s;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: none; border: 1.5px solid var(--border);
+      color: var(--muted); border-radius: 10px;
+      padding: 8px 18px; font-size: 0.83rem;
+      cursor: pointer; font-family: inherit;
+      transition: border-color .18s, color .18s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-danger {
+      background: rgba(244,114,182,.1); border: 1px solid rgba(244,114,182,.3);
+      color: var(--pink); border-radius: 8px;
+      padding: 4px 10px; font-size: 0.75rem;
+      cursor: pointer; font-family: inherit;
+      transition: background .18s;
+    }
+    .btn-danger:hover { background: rgba(244,114,182,.22); }
+
+    /* ── FORM ELEMENTS ─────────────────────── */
+    .form-label {
+      display: block; font-size: 0.8rem;
+      color: var(--muted); margin-bottom: 8px; font-weight: 600;
+    }
+    .form-row { margin-bottom: 20px; }
+
+    .text-input {
+      width: 100%; background: var(--surf2);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); padding: 10px 14px;
+      font-size: 0.88rem; font-family: inherit;
+      outline: none; transition: border-color .18s;
+    }
+    .text-input:focus { border-color: var(--accent); }
+    .text-input::placeholder { color: var(--muted); }
+
+    textarea.text-input {
+      resize: vertical; min-height: 180px; line-height: 1.7;
+    }
+
+    /* ── SECTION 1: 글감 생성기 ─────────────── */
+    .gen-controls {
+      background: var(--surf1); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+      margin-bottom: 24px;
+    }
+
+    .result-card {
+      background: var(--surf2); border: 1px solid rgba(124,111,252,.3);
+      border-radius: var(--radius); padding: 22px;
+      margin-top: 24px; display: none;
+    }
+    .result-card.visible { display: block; animation: fadeIn .25s ease; }
+
+    .result-title-label {
+      font-size: 0.72rem; color: var(--accent); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+    }
+    .result-title-val {
+      font-size: 1.25rem; font-weight: 700; margin-bottom: 18px;
+      color: var(--text);
+    }
+    .result-hook-label {
+      font-size: 0.72rem; color: var(--accent2); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+    }
+    .result-hook-val {
+      font-size: 0.92rem; color: var(--text); line-height: 1.7;
+      margin-bottom: 18px; font-style: italic;
+      padding-left: 12px; border-left: 3px solid var(--accent2);
+    }
+    .result-kw-label {
+      font-size: 0.72rem; color: var(--muted); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;
+    }
+    .result-kw-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .loading-dot {
+      display: inline-block;
+      animation: dotPulse 1.2s infinite;
+    }
+    @keyframes dotPulse {
+      0%,80%,100% { opacity: .3; }
+      40% { opacity: 1; }
+    }
+
+    /* ── SECTION 2: 단어 탐색 사전 ─────────── */
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 24px;
+    }
+    .search-bar .text-input { flex: 1; }
+
+    .dict-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .dict-card-title {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+
+    .syn-item {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .syn-item:last-child { border-bottom: none; }
+    .syn-word { font-weight: 700; color: var(--text); }
+    .syn-nuance { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+
+    .ant-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .ex-item {
+      font-size: 0.85rem; line-height: 1.7; color: var(--text);
+      font-style: italic;
+      padding: 10px 12px;
+      background: var(--surf3); border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .ex-item:last-child { margin-bottom: 0; }
+
+    .dict-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--muted); font-size: 0.9rem;
+    }
+
+    /* ── SECTION 3: 글 아카이브 ─────────────── */
+    .archive-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 640px) {
+      .archive-layout { grid-template-columns: 1fr; }
+    }
+
+    .write-panel {
+      background: var(--surf1); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+      position: sticky; top: calc(var(--header-h) + 16px);
+    }
+
+    .word-count-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .word-count { font-size: 0.78rem; color: var(--muted); }
+
+    .archive-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .arch-card {
+      background: var(--surf1); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: transform .22s, border-color .22s, box-shadow .22s;
+    }
+    .arch-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg,rgba(124,111,252,.06),rgba(34,211,238,.04));
+      opacity: 0; transition: opacity .22s; pointer-events: none;
+    }
+    .arch-card:hover { transform: translateY(-3px); border-color: rgba(124,111,252,.55); box-shadow: 0 10px 40px rgba(124,111,252,.18); }
+    .arch-card:hover::before { opacity: 1; }
+
+    .arch-meta {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .arch-date { font-size: 0.73rem; color: var(--muted); }
+    .arch-wc   { font-size: 0.73rem; color: var(--muted); }
+
+    .arch-title {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--text); margin-bottom: 5px;
+    }
+    .arch-preview { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    .arch-card-footer {
+      display: flex; justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .arch-expand {
+      background: var(--surf2); border: 1px solid var(--border);
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 20px; margin-top: 0;
+      display: none;
+      border-top: none;
+    }
+    .arch-expand.open { display: block; }
+    .arch-expand-body {
+      font-size: 0.88rem; color: var(--text);
+      line-height: 1.85; white-space: pre-wrap;
+    }
+
+    .arch-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--muted); font-size: 0.9rem;
+    }
+
+    /* ── MODAL ─────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.7); z-index: 500;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--surf1); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      max-width: 620px; width: 100%;
+      max-height: 80vh; overflow-y: auto;
+      position: relative; animation: fadeIn .2s ease;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--surf3); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px;
+      width: 30px; height: 30px; cursor: pointer;
+      font-size: 1rem; display: flex; align-items: center; justify-content: center;
+      transition: color .18s;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .modal-meta  { font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .modal-body  { font-size: 0.9rem; line-height: 1.9; white-space: pre-wrap; color: var(--text); }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surf3); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────── -->
+<header>
+  <a href="../index.html" class="hub-link">← AI Hub</a>
+  <div class="divider-v"></div>
+  <div class="logo">writing</div>
+
+  <div class="top-tabs" id="topTabs">
+    <button class="tab-btn active" data-tab="gen">✦ 글감 생성기</button>
+    <button class="tab-btn" data-tab="dict">사전</button>
+    <button class="tab-btn" data-tab="archive">아카이브</button>
+  </div>
+
+  <div class="streak-badge" id="streakBadge">🔥 0일 연속</div>
+
+  <div class="api-area">
+    <input class="api-input" id="apiKeyInput" type="password" placeholder="sk-..." autocomplete="off" />
+    <button class="api-save-btn" onclick="saveApiKey()">저장</button>
+    <span class="api-status" id="apiStatus"></span>
+  </div>
+  <div class="api-hint">키는 브라우저 로컬에만 저장됩니다</div>
+</header>
+
+<!-- ── MAIN ─────────────────────────────────── -->
+<main>
+
+  <!-- SECTION 1: 글감 생성기 -->
+  <section class="section active" id="sec-gen">
+    <div class="section-title">
+      ✦ 글감 생성기
+      <span>AI가 제목 · 첫 문장 · 키워드를 만들어 드립니다</span>
+    </div>
+
+    <div class="gen-controls">
+      <div class="form-row">
+        <div class="form-label">장르</div>
+        <div class="chips" id="genreChips">
+          <label class="chip-label">
+            <input type="radio" name="genre" value="단편소설" checked />
+            <span class="chip-body">단편소설</span>
+          </label>
+          <label class="chip-label">
+            <input type="radio" name="genre" value="에세이" />
+            <span class="chip-body">에세이</span>
+          </label>
+          <label class="chip-label">
+            <input type="radio" name="genre" value="시" />
+            <span class="chip-body">시</span>
+          </label>
+          <label class="chip-label">
+            <input type="radio" name="genre" value="자유" />
+            <span class="chip-body">자유</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">분위기 <span style="font-weight:400">(다중 선택 가능)</span></div>
+        <div class="chips" id="moodChips">
+          <label class="chip-label">
+            <input type="checkbox" name="mood" value="잔잔함" />
+            <span class="chip-body">잔잔함</span>
+          </label>
+          <label class="chip-label">
+            <input type="checkbox" name="mood" value="긴장감" />
+            <span class="chip-body">긴장감</span>
+          </label>
+          <label class="chip-label">
+            <input type="checkbox" name="mood" value="유머" />
+            <span class="chip-body">유머</span>
+          </label>
+          <label class="chip-label">
+            <input type="checkbox" name="mood" value="슬픔" />
+            <span class="chip-body">슬픔</span>
+          </label>
+          <label class="chip-label">
+            <input type="checkbox" name="mood" value="몽환적" />
+            <span class="chip-body">몽환적</span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="genBtn" onclick="generatePrompt()">글감 생성</button>
+    </div>
+
+    <div class="result-card" id="genResult">
+      <div class="result-title-label">제목 후보</div>
+      <div class="result-title-val" id="resTitle">—</div>
+
+      <div class="result-hook-label">첫 문장 훅</div>
+      <div class="result-hook-val" id="resHook">—</div>
+
+      <div class="result-kw-label">핵심 키워드</div>
+      <div class="result-kw-list" id="resKw"></div>
+
+      <div class="result-actions">
+        <button class="btn-primary" onclick="useAsToday()">오늘의 주제로 쓰기</button>
+        <button class="btn-ghost" onclick="generatePrompt()">다시 생성</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: 단어 탐색 사전 -->
+  <section class="section" id="sec-dict">
+    <div class="section-title">
+      사전
+      <span>유의어 · 반의어 · 예문 · 문체 태그</span>
+    </div>
+
+    <div class="search-bar">
+      <input class="text-input" id="dictInput" placeholder="단어나 표현을 입력하세요…"
+             onkeydown="if(event.key==='Enter') searchWord()" />
+      <button class="btn-primary" onclick="searchWord()">탐색</button>
+    </div>
+
+    <div id="dictResult">
+      <div class="dict-empty">단어를 검색하면 AI가 분석 결과를 보여줍니다.</div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: 글 아카이브 -->
+  <section class="section" id="sec-archive">
+    <div class="section-title">
+      아카이브
+      <span>오늘의 글을 작성하고 저장하세요</span>
+    </div>
+
+    <div class="archive-layout">
+      <!-- 작성창 -->
+      <div class="write-panel">
+        <div class="form-row">
+          <div class="form-label">제목</div>
+          <input class="text-input" id="writeTitle" placeholder="제목을 입력하세요…" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">장르</div>
+          <div class="chips">
+            <label class="chip-label">
+              <input type="radio" name="writeGenre" value="단편소설" checked />
+              <span class="chip-body" style="font-size:.78rem;padding:4px 11px">단편소설</span>
+            </label>
+            <label class="chip-label">
+              <input type="radio" name="writeGenre" value="에세이" />
+              <span class="chip-body" style="font-size:.78rem;padding:4px 11px">에세이</span>
+            </label>
+            <label class="chip-label">
+              <input type="radio" name="writeGenre" value="시" />
+              <span class="chip-body" style="font-size:.78rem;padding:4px 11px">시</span>
+            </label>
+            <label class="chip-label">
+              <input type="radio" name="writeGenre" value="자유" />
+              <span class="chip-body" style="font-size:.78rem;padding:4px 11px">자유</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="form-label">본문</div>
+          <textarea class="text-input" id="writeBody"
+            placeholder="여기에 오늘의 글을 작성하세요…"
+            oninput="updateWordCount()"></textarea>
+        </div>
+
+        <div class="word-count-bar">
+          <span class="word-count" id="wordCountDisp">0 글자</span>
+          <button class="btn-primary" onclick="saveEntry()">저장</button>
+        </div>
+      </div>
+
+      <!-- 아카이브 목록 -->
+      <div>
+        <div id="archiveList">
+          <div class="arch-empty">저장된 글이 없습니다.<br>첫 글을 작성해보세요.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── MODAL ─────────────────────────────────── -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-meta" id="modalMeta"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ─── API KEY ─────────────────────────────────── */
+const KEY_STORE = 'openai_api_key';
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(KEY_STORE);
+  if (saved) {
+    document.getElementById('apiKeyInput').value = saved;
+    setApiStatus('ok');
+  }
+  renderArchive();
+  updateStreak();
+});
+
+function saveApiKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v.startsWith('sk-')) { setApiStatus('err'); return; }
+  localStorage.setItem(KEY_STORE, v);
+  setApiStatus('ok');
+}
+
+function setApiStatus(s) {
+  const el = document.getElementById('apiStatus');
+  if (s === 'ok') { el.textContent = '저장됨 ✓'; el.className = 'api-status ok'; }
+  else            { el.textContent = '형식 오류'; el.className = 'api-status err'; }
+}
+
+function getApiKey() { return localStorage.getItem(KEY_STORE) || ''; }
+
+async function callGPT(messages) {
+  const key = getApiKey();
+  if (!key) throw new Error('API 키를 먼저 저장해주세요.');
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`
+    },
+    body: JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.9 })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.choices[0].message.content.trim();
+}
+
+/* ─── TABS ────────────────────────────────────── */
+document.getElementById('topTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sec-' + btn.dataset.tab).classList.add('active');
+});
+
+/* ─── FEATURE 1: 글감 생성기 ─────────────────── */
+let lastGenResult = null;
+
+async function generatePrompt() {
+  const genre = document.querySelector('input[name="genre"]:checked')?.value || '단편소설';
+  const moods = [...document.querySelectorAll('input[name="mood"]:checked')].map(i => i.value);
+  const moodStr = moods.length ? moods.join(', ') : '자유로운';
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '생성 중<span class="loading-dot">...</span>';
+
+  const resultCard = document.getElementById('genResult');
+  resultCard.classList.remove('visible');
+
+  const prompt = `당신은 창작 글감을 제안하는 전문 작가입니다.
+다음 조건에 맞는 글감을 JSON으로 반환하세요.
+
+장르: ${genre}
+분위기: ${moodStr}
+
+반드시 아래 JSON 형식으로만 응답하세요 (코드블록 없이):
+{
+  "title": "제목 후보 (한국어, 20자 이내)",
+  "hook": "독자를 사로잡는 첫 문장 (한국어, 50~80자)",
+  "keywords": ["키워드1", "키워드2", "키워드3"]
+}`;
+
+  try {
+    const raw = await callGPT([{ role: 'user', content: prompt }]);
+    const json = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    lastGenResult = { ...json, genre };
+
+    document.getElementById('resTitle').textContent = json.title || '—';
+    document.getElementById('resHook').textContent  = json.hook  || '—';
+
+    const kwEl = document.getElementById('resKw');
+    kwEl.innerHTML = '';
+    (json.keywords || []).forEach(k => {
+      const span = document.createElement('span');
+      span.className = 'tag cyan';
+      span.textContent = k;
+      kwEl.appendChild(span);
+    });
+
+    resultCard.classList.add('visible');
+  } catch (err) {
+    alert('오류: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '글감 생성';
+  }
+}
+
+function useAsToday() {
+  if (!lastGenResult) return;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelector('[data-tab="archive"]').classList.add('active');
+  document.getElementById('sec-archive').classList.add('active');
+
+  document.getElementById('writeTitle').value = lastGenResult.title || '';
+  const genreRadio = document.querySelector(`input[name="writeGenre"][value="${lastGenResult.genre}"]`);
+  if (genreRadio) genreRadio.checked = true;
+
+  const hook = lastGenResult.hook || '';
+  document.getElementById('writeBody').value = hook ? hook + '\n\n' : '';
+  updateWordCount();
+}
+
+/* ─── FEATURE 2: 단어 탐색 사전 ──────────────── */
+async function searchWord() {
+  const word = document.getElementById('dictInput').value.trim();
+  if (!word) return;
+
+  const resultEl = document.getElementById('dictResult');
+  resultEl.innerHTML = '<div class="dict-empty">AI가 분석 중입니다<span class="loading-dot">...</span></div>';
+
+  const prompt = `당신은 한국어 문학 전문 사전입니다.
+단어/표현 "「${word}」"에 대해 아래 JSON 형식으로만 응답하세요 (코드블록 없이):
+
+{
+  "synonyms": [
+    {"word": "유의어1", "nuance": "뉘앙스 차이 한 줄"},
+    {"word": "유의어2", "nuance": "뉘앙스 차이 한 줄"},
+    {"word": "유의어3", "nuance": "뉘앙스 차이 한 줄"},
+    {"word": "유의어4", "nuance": "뉘앙스 차이 한 줄"},
+    {"word": "유의어5", "nuance": "뉘앙스 차이 한 줄"}
+  ],
+  "antonyms": ["반의어1", "반의어2", "반의어3"],
+  "examples": [
+    "문학적 예문 1 (30~50자)",
+    "문학적 예문 2 (30~50자)"
+  ],
+  "tags": ["어울리는 문체 또는 장르 태그1", "태그2", "태그3"]
+}`;
+
+  try {
+    const raw = await callGPT([{ role: 'user', content: prompt }]);
+    const json = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    renderDictResult(word, json);
+  } catch (err) {
+    resultEl.innerHTML = `<div class="dict-empty" style="color:var(--pink)">오류: ${escHtml(err.message)}</div>`;
+  }
+}
+
+const TAG_COLORS = ['', 'green', 'cyan', 'pink', 'amber'];
+
+function renderDictResult(word, d) {
+  const el = document.getElementById('dictResult');
+
+  const synsHtml = (d.synonyms || []).map(s => `
+    <div class="syn-item">
+      <div class="syn-word">${escHtml(s.word)}</div>
+      <div class="syn-nuance">${escHtml(s.nuance)}</div>
+    </div>`).join('');
+
+  const antsHtml = (d.antonyms || []).map((a, i) =>
+    `<span class="tag ${TAG_COLORS[(i+1)%TAG_COLORS.length]}">${escHtml(a)}</span>`
+  ).join('');
+
+  const exsHtml = (d.examples || []).map(e =>
+    `<div class="ex-item">${escHtml(e)}</div>`
+  ).join('');
+
+  const tagsHtml = (d.tags || []).map((t, i) =>
+    `<span class="tag ${TAG_COLORS[i % TAG_COLORS.length]}">${escHtml(t)}</span>`
+  ).join('');
+
+  el.innerHTML = `
+    <div style="margin-bottom:12px">
+      <span style="font-size:1.1rem;font-weight:700;color:var(--text)">"${escHtml(word)}"</span>
+      <span style="color:var(--muted);font-size:0.82rem;margin-left:10px">분석 결과</span>
+    </div>
+    <div class="dict-grid">
+      <div class="card" style="cursor:default">
+        <div class="dict-card-title" style="color:var(--accent)">유의어 (5)</div>
+        ${synsHtml || '<div class="syn-item" style="color:var(--muted)">결과 없음</div>'}
+      </div>
+      <div class="card" style="cursor:default">
+        <div class="dict-card-title" style="color:var(--pink)">반의어 (3)</div>
+        <div class="ant-list">${antsHtml || '<span style="color:var(--muted);font-size:.85rem">결과 없음</span>'}</div>
+        <div style="margin-top:20px">
+          <div class="dict-card-title" style="color:var(--amber)">어울리는 문체 / 장르</div>
+          <div class="chips" style="margin-top:4px">${tagsHtml}</div>
+        </div>
+      </div>
+      <div class="card" style="cursor:default;grid-column:1/-1">
+        <div class="dict-card-title" style="color:var(--accent2)">문학적 예문 (2)</div>
+        ${exsHtml || '<div class="ex-item" style="font-style:normal;color:var(--muted)">결과 없음</div>'}
+      </div>
+    </div>`;
+}
+
+/* ─── FEATURE 3: 글 아카이브 ─────────────────── */
+const ARCH_KEY = 'writing_archive';
+
+function loadArchive() {
+  try { return JSON.parse(localStorage.getItem(ARCH_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveArchive(arr) { localStorage.setItem(ARCH_KEY, JSON.stringify(arr)); }
+
+function updateWordCount() {
+  const body = document.getElementById('writeBody').value;
+  document.getElementById('wordCountDisp').textContent = body.length + ' 글자';
+}
+
+function saveEntry() {
+  const title = document.getElementById('writeTitle').value.trim();
+  const body  = document.getElementById('writeBody').value.trim();
+  const genre = document.querySelector('input[name="writeGenre"]:checked')?.value || '자유';
+
+  if (!title) { alert('제목을 입력해주세요.'); return; }
+  if (!body)  { alert('본문을 입력해주세요.'); return; }
+
+  const arr = loadArchive();
+  arr.unshift({
+    id: Date.now(),
+    title, body, genre,
+    date: todayStr(),
+    wordCount: body.length
+  });
+  saveArchive(arr);
+
+  document.getElementById('writeTitle').value = '';
+  document.getElementById('writeBody').value  = '';
+  updateWordCount();
+  renderArchive();
+  updateStreak();
+}
+
+function deleteEntry(id, e) {
+  e.stopPropagation();
+  const arr = loadArchive().filter(x => x.id !== id);
+  saveArchive(arr);
+  renderArchive();
+  updateStreak();
+}
+
+let expandedId = null;
+
+function toggleExpand(id) {
+  expandedId = expandedId === id ? null : id;
+  renderArchive();
+}
+
+function renderArchive() {
+  const arr = loadArchive();
+  const el  = document.getElementById('archiveList');
+  if (!arr.length) {
+    el.innerHTML = '<div class="arch-empty">저장된 글이 없습니다.<br>첫 글을 작성해보세요.</div>';
+    return;
+  }
+
+  const genreColor = { '단편소설': '', '에세이': 'cyan', '시': 'pink', '자유': 'amber' };
+
+  el.innerHTML = arr.map(e => {
+    const isOpen = expandedId === e.id;
+    const preview = e.body.slice(0, 50).replace(/\n/g, ' ') + (e.body.length > 50 ? '…' : '');
+    const gc = genreColor[e.genre] || '';
+    return `
+      <div>
+        <div class="arch-card" onclick="toggleExpand(${e.id})">
+          <div class="arch-meta">
+            <span class="arch-date">${escHtml(e.date)}</span>
+            <span class="tag ${gc}" style="font-size:.68rem">${escHtml(e.genre)}</span>
+            <span class="arch-wc">${e.wordCount.toLocaleString()}자</span>
+          </div>
+          <div class="arch-title">${escHtml(e.title)}</div>
+          <div class="arch-preview">${escHtml(preview)}</div>
+          <div class="arch-card-footer">
+            <button class="btn-danger" onclick="deleteEntry(${e.id}, event)">삭제</button>
+          </div>
+        </div>
+        <div class="arch-expand ${isOpen ? 'open' : ''}">
+          <div class="arch-expand-body">${escHtml(e.body)}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ─── STREAK ──────────────────────────────────── */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function updateStreak() {
+  const arr  = loadArchive();
+  const days = [...new Set(arr.map(e => e.date))].sort().reverse();
+  const today = todayStr();
+  let streak  = 0;
+
+  const toMs = s => new Date(s).getTime();
+  const DAY  = 86400000;
+
+  for (let i = 0; i < days.length; i++) {
+    const expected = toMs(today) - i * DAY;
+    const actual   = toMs(days[i]);
+    if (Math.abs(expected - actual) < DAY / 2) streak++;
+    else break;
+  }
+
+  document.getElementById('streakBadge').textContent = `🔥 ${streak}일 연속`;
+}
+
+/* ─── MODAL ───────────────────────────────────── */
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+/* ─── UTILS ───────────────────────────────────── */
+function escHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
