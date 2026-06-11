@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Hub — AI 서비스 모음</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c12;
+      --surf1:     #14141e;
+      --surf2:     #1c1c2a;
+      --surf3:     #242434;
+      --border:    #28283c;
+      --accent:    #7c6ffc;
+      --accent2:   #22d3ee;
+      --green:     #34d399;
+      --pink:      #f472b6;
+      --amber:     #fbbf24;
+      --text:      #dde1f0;
+      --muted:     #7a7a9a;
+      --sidebar-w: 210px;
+      --header-h:  58px;
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: rgba(20, 20, 30, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 20px; gap: 10px; z-index: 200;
+    }
+
+    .logo {
+      font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      white-space: nowrap; margin-right: 12px; flex-shrink: 0;
+    }
+
+    .top-nav {
+      display: flex; gap: 4px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .top-nav::-webkit-scrollbar { display: none; }
+
+    .top-nav button {
+      background: none; border: 1.5px solid transparent;
+      color: var(--muted); padding: 5px 15px;
+      border-radius: 20px; cursor: pointer;
+      font-size: 0.83rem; white-space: nowrap;
+      transition: color .18s, border-color .18s, background .18s;
+      font-family: inherit;
+    }
+    .top-nav button:hover { color: var(--text); background: var(--surf3); }
+    .top-nav button.active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(124, 111, 252, 0.12);
+    }
+
+    /* ── LAYOUT ─────────────────────────────── */
+    .layout {
+      display: flex;
+      padding-top: var(--header-h);
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    aside {
+      width: var(--sidebar-w); flex-shrink: 0;
+      position: fixed; top: var(--header-h); bottom: 0; left: 0;
+      background: var(--surf1);
+      border-right: 1px solid var(--border);
+      overflow-y: auto; padding: 16px 10px 40px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .sidebar-label {
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: .1em; padding: 10px 8px 6px;
+    }
+
+    .sidebar-btn {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; text-align: left; background: none; border: none;
+      color: var(--muted); padding: 8px 10px; border-radius: 8px;
+      cursor: pointer; font-size: 0.845rem; font-family: inherit;
+      transition: color .18s, background .18s;
+    }
+    .sidebar-btn:hover { color: var(--text); background: var(--surf3); }
+    .sidebar-btn.active {
+      color: var(--accent2);
+      background: rgba(34, 211, 238, 0.09);
+      font-weight: 600;
+    }
+    .sidebar-btn .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+
+    /* ── MAIN ─────────────────────────────── */
+    main {
+      margin-left: var(--sidebar-w); flex: 1;
+      padding: 32px 28px 80px;
+      max-width: 1200px;
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header h2 {
+      font-size: 1.5rem; font-weight: 700; margin-bottom: 6px;
+    }
+    .page-header p { color: var(--muted); font-size: 0.875rem; }
+
+    /* sub section */
+    .subsection {
+      display: none;
+      animation: fadeUp .22s ease;
+    }
+    .subsection.visible { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .sub-title {
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: .08em; margin-bottom: 14px;
+    }
+
+    /* ── CARDS ─────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surf1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px 16px;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 9px;
+      position: relative; overflow: hidden;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .card::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(124,111,252,.06), rgba(34,211,238,.04));
+      opacity: 0; transition: opacity .2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(124,111,252,.55);
+      box-shadow: 0 10px 40px rgba(124,111,252,.18);
+    }
+    .card:hover::after { opacity: 1; }
+
+    .card-top {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .card-icon {
+      width: 40px; height: 40px;
+      background: var(--surf2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem; flex-shrink: 0;
+    }
+
+    .card-arrow {
+      color: var(--muted); font-size: 0.75rem;
+      transition: color .2s, transform .2s;
+    }
+    .card:hover .card-arrow { color: var(--accent); transform: translate(2px,-2px); }
+
+    .card-name {
+      font-size: 0.95rem; font-weight: 700; line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.775rem; color: var(--muted);
+      line-height: 1.55; flex: 1;
+    }
+
+    .card-tag {
+      display: inline-block; font-size: 0.68rem;
+      padding: 2px 9px; border-radius: 20px; align-self: flex-start;
+      background: rgba(124,111,252,.13);
+      color: var(--accent); border: 1px solid rgba(124,111,252,.28);
+      font-weight: 600; letter-spacing: .02em;
+    }
+    .card-tag.green  { background: rgba(52,211,153,.1);  color: var(--green);  border-color: rgba(52,211,153,.3); }
+    .card-tag.cyan   { background: rgba(34,211,238,.1);  color: var(--accent2); border-color: rgba(34,211,238,.3); }
+    .card-tag.pink   { background: rgba(244,114,182,.1); color: var(--pink);   border-color: rgba(244,114,182,.3); }
+    .card-tag.amber  { background: rgba(251,191,36,.1);  color: var(--amber);  border-color: rgba(251,191,36,.3); }
+
+    .my-service-btn {
+      background: rgba(124,111,252,.15);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,252,.35);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      padding: 5px 12px;
+      width: 100%;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: background .18s;
+      position: relative; z-index: 1;
+      margin-top: 2px;
+    }
+    .my-service-btn:hover { background: rgba(124,111,252,.3); }
+
+    /* scrollbar */
+    aside::-webkit-scrollbar { width: 4px; }
+    aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* responsive */
+    @media (max-width: 700px) {
+      .layout { flex-direction: column; }
+      aside { display: none; }
+      main { margin-left: 0; padding: 20px 14px 60px; }
+      .card-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✦ AI Hub</div>
+  <nav class="top-nav" id="topNav"></nav>
+</header>
+
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ── DATA ──────────────────────────────────────────────────────── */
+const DATA = {
+  chatbot: {
+    label: "🤖 AI 챗봇 & LLM",
+    desc: "대화형 AI 어시스턴트 및 대형 언어 모델",
+    subs: {
+      flagship: {
+        label: "🌟 주요 AI",
+        cards: [
+          { icon:"🟠", name:"Claude",      desc:"Anthropic의 헌법적 AI. 긴 컨텍스트·안전성·추론 능력이 뛰어남.", tag:"Anthropic", color:"",      url:"https://claude.ai" },
+          { icon:"💎", name:"Gemini",      desc:"Google의 멀티모달 AI. YouTube·Gmail 등 Google 생태계 통합.", tag:"Google",    color:"cyan",   url:"https://gemini.google.com" },
+          { icon:"⚡", name:"Grok",        desc:"xAI의 실시간 인터넷 AI. X(트위터) 피드 실시간 검색 가능.",  tag:"xAI",      color:"amber",  url:"https://grok.x.ai" },
+          { icon:"🤍", name:"ChatGPT",     desc:"OpenAI GPT-4o 기반. 전 세계 가장 많이 사용되는 AI 챗봇.",   tag:"OpenAI",   color:"green",  url:"https://chatgpt.com" },
+          { icon:"✨", name:"Genspark",    desc:"에이전트 기반 AI 검색 엔진. 정보 수집·요약·정리 자동화.",   tag:"Genspark", color:"",       url:"https://www.genspark.ai" },
+          { icon:"🦙", name:"Meta AI",     desc:"Llama 기반 Meta의 AI 어시스턴트. WhatsApp·Instagram 연동.", tag:"Meta",     color:"cyan",   url:"https://www.meta.ai" },
+          { icon:"🌀", name:"Mistral AI",  desc:"유럽 기반 오픈 모델 AI. 경량·고속 LLM 제공.",              tag:"Mistral",  color:"pink",   url:"https://chat.mistral.ai" },
+        ]
+      },
+      search: {
+        label: "🔍 AI 검색",
+        cards: [
+          { icon:"🔮", name:"Perplexity",  desc:"AI 기반 실시간 검색. 신뢰할 수 있는 출처를 함께 제공.",     tag:"Search",    color:"cyan",  url:"https://www.perplexity.ai" },
+          { icon:"🌊", name:"You.com",     desc:"개인화 AI 검색 엔진. 다양한 AI 모드와 앱 마켓 지원.",       tag:"Search",    color:"",      url:"https://you.com" },
+          { icon:"🧭", name:"Phind",       desc:"개발자 특화 AI 검색. 코드·기술 질문에 최적화된 답변.",      tag:"Dev",       color:"green", url:"https://www.phind.com" },
+        ]
+      },
+    }
+  },
+
+  dev: {
+    label: "⚙️ 개발 플랫폼",
+    desc: "AI 모델 탐색, API 콘솔, 개발 프레임워크",
+    subs: {
+      hub: {
+        label: "🛠️ 모델 허브",
+        cards: [
+          { icon:"🤗", name:"Hugging Face",   desc:"세계 최대 AI 모델 허브. 수십만 개 오픈소스 모델·데이터셋.",  tag:"Hub",    color:"amber", url:"https://huggingface.co" },
+          { icon:"🐙", name:"GitHub",         desc:"세계 최대 코드 호스팅. GitHub Copilot AI 코딩 지원.",        tag:"Git",    color:"",      url:"https://github.com" },
+          { icon:"⚗️", name:"Replicate",      desc:"API 한 줄로 AI 모델 실행. 간단한 배포와 스케일링.",          tag:"API",    color:"pink",  url:"https://replicate.com" },
+          { icon:"🧬", name:"Ollama",         desc:"로컬 LLM 실행 도구. Llama3·Mistral 등을 내 PC에서.",        tag:"Local",  color:"green", url:"https://ollama.com" },
+        ]
+      },
+      api: {
+        label: "🔑 API 콘솔",
+        cards: [
+          { icon:"🟢", name:"OpenAI Platform",    desc:"GPT·DALL-E·Whisper API. Playground·Fine-tuning 제공.",  tag:"API",    color:"green", url:"https://platform.openai.com" },
+          { icon:"🟠", name:"Anthropic Console",  desc:"Claude API 관리. Workbench·사용량 모니터링·캐싱.",      tag:"API",    color:"",      url:"https://console.anthropic.com" },
+          { icon:"💙", name:"Google AI Studio",   desc:"Gemini API 및 모델 실험. 무료 티어 제공.",              tag:"API",    color:"cyan",  url:"https://aistudio.google.com" },
+          { icon:"⚡", name:"Groq",               desc:"LPU 기반 초고속 AI 추론. Llama·Mixtral API 제공.",      tag:"Fast",   color:"amber", url:"https://groq.com" },
+          { icon:"🌩️", name:"Together AI",        desc:"오픈소스 LLM API. 다양한 모델 통합 엔드포인트.",        tag:"API",    color:"pink",  url:"https://www.together.ai" },
+        ]
+      },
+      framework: {
+        label: "🧩 개발 프레임워크",
+        cards: [
+          { icon:"🦜", name:"LangChain",    desc:"LLM 앱 개발 프레임워크. 체인·에이전트·RAG 구성.",           tag:"Framework", color:"green", url:"https://www.langchain.com" },
+          { icon:"🌿", name:"LlamaIndex",   desc:"LLM 데이터 인덱싱 프레임워크. 문서 Q&A 구축.",              tag:"Framework", color:"",      url:"https://www.llamaindex.ai" },
+          { icon:"🧪", name:"W&B",          desc:"ML 실험 추적·모델 관리 플랫폼. 팀 협업 지원.",              tag:"MLOps",     color:"amber", url:"https://wandb.ai" },
+        ]
+      }
+    }
+  },
+
+  image: {
+    label: "🎨 이미지 & 비주얼",
+    desc: "AI 이미지 생성, 편집, 크리에이티브 도구",
+    subs: {
+      generation: {
+        label: "🖼️ 이미지 생성",
+        cards: [
+          { icon:"🎨", name:"Midjourney",      desc:"예술적 고품질 이미지 생성. Discord 및 웹 인터페이스.",    tag:"Art",     color:"pink",  url:"https://www.midjourney.com" },
+          { icon:"🌈", name:"DALL-E 3",        desc:"OpenAI 이미지 AI. ChatGPT에 통합, 정교한 프롬프트 해석.", tag:"OpenAI",  color:"green", url:"https://chatgpt.com" },
+          { icon:"🔥", name:"Stable Diffusion",desc:"오픈소스 이미지 생성. 로컬 실행·커스텀 파인튜닝 가능.",  tag:"Open",    color:"amber", url:"https://stability.ai" },
+          { icon:"🎭", name:"Adobe Firefly",   desc:"Adobe Creative Cloud 통합 생성형 AI. 상업적 라이선스.",  tag:"Adobe",   color:"",      url:"https://firefly.adobe.com" },
+          { icon:"🦁", name:"Leonardo AI",     desc:"게임·캐릭터·컨셉 아트 특화 이미지 생성 AI.",            tag:"Art",     color:"cyan",  url:"https://leonardo.ai" },
+          { icon:"💬", name:"Ideogram",        desc:"텍스트 렌더링이 뛰어난 이미지 AI. 로고·타이포 생성.",    tag:"Text+Art",color:"pink",  url:"https://ideogram.ai" },
+        ]
+      },
+      creative: {
+        label: "✏️ 크리에이티브 도구",
+        cards: [
+          { icon:"🪄", name:"Whisk",       desc:"Google의 이미지 리믹스 AI. 이미지를 프롬프트로 활용.",      tag:"Google", color:"cyan",  url:"https://labs.google/experiments/whisk" },
+          { icon:"🖌️", name:"Canva AI",    desc:"디자인 플랫폼에 통합된 AI 이미지 생성·편집 도구.",         tag:"Design", color:"",      url:"https://www.canva.com" },
+          { icon:"🔲", name:"Remove.bg",   desc:"AI 배경 제거. 클릭 한 번으로 정확한 누끼 따기.",            tag:"Edit",   color:"green", url:"https://www.remove.bg" },
+          { icon:"📐", name:"Clipdrop",    desc:"Stability AI 이미지 편집 도구. 업스케일·배경 교체 등.",     tag:"Edit",   color:"amber", url:"https://clipdrop.co" },
+        ]
+      }
+    }
+  },
+
+  audio: {
+    label: "🎵 음악 & 오디오",
+    desc: "AI 음악 생성, 음성 합성, 오디오 편집",
+    subs: {
+      music: {
+        label: "🎼 음악 생성",
+        cards: [
+          { icon:"🎵", name:"SUNO",    desc:"텍스트로 완성도 높은 음악 생성. 보컬·작사·편곡 모두 자동.",  tag:"Music",       color:"pink",  url:"https://suno.com" },
+          { icon:"🎶", name:"Udio",    desc:"고품질 AI 음악 생성. 다양한 장르·스타일 지원.",             tag:"Music",       color:"",      url:"https://www.udio.com" },
+          { icon:"🎹", name:"Mubert",  desc:"무드별 로열티 프리 AI 음악 스트림 실시간 생성.",            tag:"Royalty Free",color:"green", url:"https://mubert.com" },
+        ]
+      },
+      voice: {
+        label: "🎙️ 음성 & TTS",
+        cards: [
+          { icon:"🔊", name:"ElevenLabs", desc:"초실감 AI 음성 합성. 다국어·감정 표현·음성 복제 지원.",  tag:"TTS", color:"cyan",  url:"https://elevenlabs.io" },
+          { icon:"📢", name:"PlayHT",     desc:"자연스러운 AI 음성 생성 API. 900+ 목소리 선택 가능.",   tag:"TTS", color:"",      url:"https://play.ht" },
+          { icon:"🎤", name:"Whisper",    desc:"OpenAI 오픈소스 음성 인식(STT). 다국어 지원.",          tag:"STT", color:"green", url:"https://openai.com/research/whisper" },
+        ]
+      }
+    }
+  },
+
+  builder: {
+    label: "🏗️ 코드 & 빌더",
+    desc: "AI 코딩 어시스턴트, 앱·웹 빌더, IDE",
+    subs: {
+      appbuilder: {
+        label: "🚀 앱·웹 빌더",
+        cards: [
+          { icon:"💜", name:"Lovable",   desc:"자연어로 풀스택 웹앱 생성. Supabase 통합·원클릭 배포.",   tag:"Full-Stack", color:"pink",  url:"https://lovable.dev" },
+          { icon:"⬛", name:"V0",        desc:"Vercel AI. 텍스트로 React·Next.js UI 컴포넌트 즉시 생성.", tag:"Vercel",     color:"",      url:"https://v0.dev" },
+          { icon:"⚡", name:"Bolt.new",  desc:"StackBlitz AI 빌더. 브라우저에서 풀스택 앱 즉시 실행.",   tag:"Full-Stack", color:"amber", url:"https://bolt.new" },
+          { icon:"🌊", name:"Replit",    desc:"클라우드 IDE. AI 코드 생성·실행·배포 원스톱 플랫폼.",     tag:"Cloud IDE",  color:"green", url:"https://replit.com" },
+        ]
+      },
+      coding: {
+        label: "💻 AI 코딩",
+        cards: [
+          { icon:"🖱️", name:"Cursor",           desc:"AI 네이티브 에디터. 코드베이스 전체를 이해하는 Copilot.", tag:"Editor", color:"cyan",  url:"https://www.cursor.com" },
+          { icon:"🐙", name:"GitHub Copilot",   desc:"GitHub AI 코딩 어시스턴트. VS Code·JetBrains 통합.",  tag:"Copilot",color:"",      url:"https://github.com/features/copilot" },
+          { icon:"🌊", name:"Windsurf",          desc:"Codeium AI IDE. Cascade 에이전트 멀티파일 편집.",       tag:"Editor", color:"green", url:"https://windsurf.com" },
+          { icon:"🟠", name:"Claude Code",       desc:"Anthropic CLI 코딩 에이전트. 터미널 기반 코드 작업.",   tag:"CLI",    color:"amber", url:"https://claude.ai/code" },
+        ]
+      }
+    }
+  },
+
+  video: {
+    label: "🎬 비디오",
+    desc: "AI 영상 생성, 편집, 애니메이션 제작",
+    subs: {
+      generation: {
+        label: "🎥 영상 생성",
+        cards: [
+          { icon:"🚀", name:"Runway",          desc:"전문가급 AI 비디오 생성. Gen-3 Alpha·모션 브러시 제공.",  tag:"Video", color:"pink",  url:"https://runwayml.com" },
+          { icon:"🦋", name:"Pika",            desc:"텍스트·이미지로 동영상 생성. 간편한 애니메이션 제작.",    tag:"Video", color:"",      url:"https://pika.art" },
+          { icon:"❄️", name:"Kling AI",        desc:"Kuaishou의 고품질 AI 비디오 생성. 5초~3분 영상 지원.",  tag:"Video", color:"cyan",  url:"https://klingai.com" },
+          { icon:"🌊", name:"Sora",            desc:"OpenAI 텍스트→비디오 AI. 물리적으로 정확한 장면 생성.",  tag:"OpenAI",color:"green", url:"https://sora.com" },
+          { icon:"🔵", name:"Luma Dream Machine",desc:"Luma AI 현실감 높은 비디오 생성. 카메라 컨트롤 지원.", tag:"Video", color:"amber", url:"https://lumalabs.ai/dream-machine" },
+        ]
+      },
+      editing: {
+        label: "✂️ 영상 편집",
+        cards: [
+          { icon:"🎬", name:"CapCut",    desc:"AI 기능 탑재 무료 영상 편집기. 자동 자막·배경 제거.",          tag:"Edit", color:"",      url:"https://www.capcut.com" },
+          { icon:"🦄", name:"Descript",  desc:"텍스트 기반 영상 편집. 오버더브 AI 음성 교체 기능.",           tag:"Edit", color:"pink",  url:"https://www.descript.com" },
+          { icon:"🎞️", name:"Captions",  desc:"AI 자동 자막·편집·B-roll 생성. 숏폼 제작 최적화.",           tag:"Short", color:"cyan", url:"https://www.captions.ai" },
+        ]
+      }
+    }
+  },
+
+  myservices: {
+    label: "✦ 내 서비스",
+    desc: "직접 제작한 AI 기반 개인 서비스",
+    subs: {
+      learning: {
+        label: "📚 학습",
+        cards: [
+          { icon:"✍️", name:"English", desc:"비즈니스 영어 작문 AI 튜터. 뉴스·이메일 주제 생성 및 교정·어휘 추천.", tag:"Writing", color:"cyan", myUrl:"./english/index.html" },
+        ]
+      }
+    }
+  }
+};
+
+/* ── STATE ──────────────────────────────────────────────────────── */
+let activeCat = 'chatbot';
+let activeSub = null;
+
+/* ── RENDER ─────────────────────────────────────────────────────── */
+function renderAll() {
+  const cat = DATA[activeCat];
+  if (!activeSub || !cat.subs[activeSub]) {
+    activeSub = Object.keys(cat.subs)[0];
+  }
+  renderTopNav();
+  renderSidebar(cat);
+  renderMain(cat);
+}
+
+function renderTopNav() {
+  const nav = document.getElementById('topNav');
+  nav.innerHTML = '';
+  Object.entries(DATA).forEach(([key, cat]) => {
+    const btn = document.createElement('button');
+    btn.textContent = cat.label;
+    if (key === activeCat) btn.classList.add('active');
+    btn.onclick = () => { activeCat = key; activeSub = null; renderAll(); };
+    nav.appendChild(btn);
+  });
+}
+
+function renderSidebar(cat) {
+  const aside = document.getElementById('sidebar');
+  aside.innerHTML = `<div class="sidebar-label">소 카테고리</div>`;
+  Object.entries(cat.subs).forEach(([key, sub]) => {
+    const btn = document.createElement('button');
+    btn.className = 'sidebar-btn' + (key === activeSub ? ' active' : '');
+    btn.innerHTML = `<span class="dot"></span>${sub.label}`;
+    btn.onclick = () => { activeSub = key; renderSidebar(cat); showSub(key); };
+    aside.appendChild(btn);
+  });
+}
+
+function renderMain(cat) {
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div class="page-header">
+      <h2>${cat.label}</h2>
+      <p>${cat.desc}</p>
+    </div>
+  `;
+  Object.entries(cat.subs).forEach(([subKey, sub]) => {
+    const sec = document.createElement('div');
+    sec.className = 'subsection' + (subKey === activeSub ? ' visible' : '');
+    sec.id = 'sub-' + subKey;
+    sec.innerHTML = `
+      <div class="sub-title">${sub.label}</div>
+      <div class="card-grid">
+        ${sub.cards.map(c => `
+          <a class="card" href="${c.url || c.myUrl || '#'}" target="_blank" rel="noopener noreferrer">
+            <div class="card-top">
+              <div class="card-icon">${c.icon}</div>
+              ${c.url ? '<span class="card-arrow">↗</span>' : ''}
+            </div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-desc">${c.desc}</div>
+            <span class="card-tag ${c.color}">${c.tag}</span>
+            ${c.myUrl ? `<button class="my-service-btn" onclick="event.stopPropagation();event.preventDefault();window.open('${c.myUrl}','_blank')">▶ 내 서비스</button>` : ''}
+          </a>
+        `).join('')}
+      </div>
+    `;
+    main.appendChild(sec);
+  });
+}
+
+function showSub(key) {
+  document.querySelectorAll('.subsection').forEach(s => {
+    s.classList.toggle('visible', s.id === 'sub-' + key);
+  });
+}
+
+/* ── INIT ───────────────────────────────────────────────────────── */
+renderAll();
+</script>
+</body>
+</html>

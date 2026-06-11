@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English — Business Writing Tutor</title>
+  <style>
+    :root {
+      --bg:      #0c0c12;
+      --surf1:   #14141e;
+      --surf2:   #1c1c2a;
+      --surf3:   #242434;
+      --border:  #28283c;
+      --accent:  #7c6ffc;
+      --accent2: #22d3ee;
+      --green:   #34d399;
+      --pink:    #f472b6;
+      --amber:   #fbbf24;
+      --text:    #dde1f0;
+      --muted:   #7a7a9a;
+      --radius:  12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    header {
+      height: 58px;
+      background: rgba(20,20,30,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 14px;
+    }
+
+    .back-link {
+      text-decoration: none;
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .back-link:hover { opacity: 0.75; }
+
+    .header-sep { color: var(--border); font-size: 1.1rem; user-select: none; }
+
+    .logo {
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .header-badge {
+      background: rgba(124,111,252,.13);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,252,.25);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── API Key Bar ─────────────────────────── */
+    .api-bar {
+      background: var(--surf1);
+      border-bottom: 1px solid var(--border);
+      padding: 9px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .api-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .api-input {
+      width: 340px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 12px;
+      color: var(--text);
+      font-size: 0.78rem;
+      outline: none;
+      font-family: 'Courier New', monospace;
+      transition: border-color 0.2s;
+    }
+    .api-input:focus { border-color: var(--accent); }
+    .api-save-btn {
+      background: rgba(124,111,252,.15);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,252,.35);
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .api-save-btn:hover { background: rgba(124,111,252,.28); }
+    .api-status { font-size: 0.74rem; }
+    .api-status.ok { color: var(--green); }
+    .api-status.err { color: var(--pink); }
+    .api-status.idle { color: var(--muted); }
+    .api-hint {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    /* ── Main layout ─────────────────────────── */
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; }
+      .full-width { grid-column: 1; }
+    }
+
+    /* ── Card ────────────────────────────────── */
+    .card {
+      background: var(--surf1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ── Topic Controls ──────────────────────── */
+    .topic-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .type-btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surf2);
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .type-btn.active {
+      border-color: rgba(124,111,252,.55);
+      background: rgba(124,111,252,.12);
+      color: var(--accent);
+    }
+    .type-btn:not(.active):hover {
+      border-color: var(--border);
+      background: var(--surf3);
+      color: var(--text);
+    }
+
+    .level-select {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.8rem;
+      padding: 7px 10px;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .level-select:focus { border-color: var(--accent); }
+
+    .gen-btn {
+      margin-left: auto;
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .gen-btn:hover { opacity: 0.82; }
+    .gen-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Topic Box ───────────────────────────── */
+    .topic-box {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      min-height: 96px;
+    }
+
+    .topic-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .topic-tag.news  { background: rgba(34,211,238,.1);   color: var(--accent2); }
+    .topic-tag.email { background: rgba(124,111,252,.13); color: var(--accent); }
+    .topic-tag.idle  { background: rgba(122,122,154,.1);  color: var(--muted); }
+
+    .topic-title {
+      font-weight: 700;
+      font-size: 0.97rem;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .topic-bg {
+      color: var(--muted);
+      font-size: 0.81rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .topic-points-label {
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .topic-point {
+      font-size: 0.8rem;
+      color: var(--text);
+      padding: 2px 0;
+      line-height: 1.5;
+    }
+
+    /* ── Tips Card ───────────────────────────── */
+    .tip-item {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .tip-num {
+      background: rgba(34,211,238,.12);
+      color: var(--accent2);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Writing Card ────────────────────────── */
+    .writing-area {
+      width: 100%;
+      min-height: 190px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.75;
+      resize: vertical;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .writing-area:focus { border-color: rgba(124,111,252,.5); }
+    .writing-area::placeholder { color: var(--muted); }
+
+    .writing-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .word-count { color: var(--muted); font-size: 0.78rem; }
+
+    .submit-btn {
+      background: linear-gradient(130deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .submit-btn:hover { opacity: 0.82; }
+    .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Loading ─────────────────────────────── */
+    .loading-row {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      padding: 28px 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .loading-row.show { display: flex; }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--surf3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result Card ─────────────────────────── */
+    .result-card { display: none; }
+    .result-card.show { display: block; }
+
+    .section-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* Score badges */
+    .score-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .score-badge {
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .score-badge.s-overall { background: rgba(124,111,252,.15); color: var(--accent); border: 1px solid rgba(124,111,252,.3); }
+    .score-badge.s-grammar { background: rgba(52,211,153,.1);   color: var(--green);  border: 1px solid rgba(52,211,153,.25); }
+    .score-badge.s-vocab   { background: rgba(34,211,238,.1);   color: var(--accent2);border: 1px solid rgba(34,211,238,.25); }
+    .score-badge.s-flow    { background: rgba(251,191,36,.1);   color: var(--amber);  border: 1px solid rgba(251,191,36,.25); }
+
+    /* Corrected text */
+    .corrected-box {
+      background: var(--surf2);
+      border: 1px solid rgba(52,211,153,.25);
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      color: var(--text);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    /* Corrections */
+    .corrections-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .correction-item {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .corr-original {
+      color: var(--pink);
+      font-size: 0.82rem;
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+    .corr-fixed {
+      color: var(--green);
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+    .corr-reason { color: var(--muted); font-size: 0.79rem; line-height: 1.5; }
+
+    /* Vocab */
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 10px;
+    }
+    .vocab-item {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px;
+      transition: border-color 0.18s;
+    }
+    .vocab-item:hover { border-color: rgba(124,111,252,.4); }
+    .vocab-term {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.88rem;
+      margin-bottom: 5px;
+    }
+    .vocab-def { color: var(--muted); font-size: 0.78rem; line-height: 1.5; margin-bottom: 5px; }
+    .vocab-ex  { color: var(--text);  font-size: 0.78rem; font-style: italic; line-height: 1.5; }
+
+    /* Copy btn */
+    .copy-btn {
+      background: rgba(34,211,238,.1);
+      color: var(--accent2);
+      border: 1px solid rgba(34,211,238,.25);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: background 0.18s;
+      margin-left: auto;
+      font-family: inherit;
+    }
+    .copy-btn:hover { background: rgba(34,211,238,.22); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+    .empty-icon { font-size: 1.8rem; margin-bottom: 10px; }
+
+    /* Error toast-style */
+    .error-msg {
+      background: rgba(244,114,182,.08);
+      border: 1px solid rgba(244,114,182,.25);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--pink);
+      font-size: 0.83rem;
+    }
+
+    /* Inline spinner for boxes */
+    .mini-loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 18px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────── -->
+<header>
+  <a href="../index.html" class="back-link">← AI Hub</a>
+  <span class="header-sep">/</span>
+  <span class="logo">English</span>
+  <span class="header-badge">Business Writing</span>
+  <div class="header-right">
+    <span style="color:var(--muted);font-size:0.75rem">AI 첨삭 튜터</span>
+  </div>
+</header>
+
+<!-- ── API Key Bar ─────────────────────────────── -->
+<div class="api-bar">
+  <span class="api-label">OpenAI API Key</span>
+  <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+  <button class="api-save-btn" onclick="saveApiKey()">저장</button>
+  <span class="api-status idle" id="apiStatus">—</span>
+  <span class="api-hint">키는 브라우저 로컬에만 저장됩니다</span>
+</div>
+
+<!-- ── Main ───────────────────────────────────── -->
+<main>
+
+  <!-- Topic Generator Card -->
+  <div class="card">
+    <div class="card-title">
+      <span class="dot"></span>Topic Generator
+    </div>
+    <div class="topic-controls">
+      <button class="type-btn active" id="btn-news"  onclick="setType('news')">📰 뉴스 기사</button>
+      <button class="type-btn"        id="btn-email" onclick="setType('email')">📧 비즈니스 이메일</button>
+      <select class="level-select" id="levelSelect">
+        <option value="beginner">초급</option>
+        <option value="intermediate" selected>중급</option>
+        <option value="advanced">고급</option>
+      </select>
+      <button class="gen-btn" id="genBtn" onclick="generateTopic()">⚡ 주제 생성</button>
+    </div>
+    <div class="topic-box" id="topicBox">
+      <span class="topic-tag idle">대기 중</span>
+      <div class="topic-bg">버튼을 눌러 오늘의 작문 주제를 생성하세요.</div>
+    </div>
+  </div>
+
+  <!-- Writing Tips Card -->
+  <div class="card">
+    <div class="card-title">
+      <span class="dot" style="background:var(--accent2)"></span>Writing Tips
+    </div>
+    <div id="tipsContent">
+      <div class="empty-state">
+        <div class="empty-icon">💡</div>
+        주제를 생성하면 관련 작문 팁이 여기에 표시됩니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- Writing Card (full width) -->
+  <div class="card full-width">
+    <div class="card-title">
+      <span class="dot" style="background:var(--green)"></span>내 작문
+    </div>
+    <textarea
+      class="writing-area"
+      id="writingArea"
+      placeholder="주제를 생성한 후 여기에 영어로 작성해 주세요..."
+      oninput="updateWordCount()"
+    ></textarea>
+    <div class="writing-footer">
+      <span class="word-count" id="wordCount">0 words</span>
+      <button class="submit-btn" id="submitBtn" onclick="submitForReview()">✦ AI 첨삭 받기</button>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="full-width loading-row" id="loadingRow">
+    <div class="spinner"></div>
+    <span>AI가 작문을 분석하고 있습니다...</span>
+  </div>
+
+  <!-- Result Card -->
+  <div class="card result-card full-width" id="resultCard">
+    <div class="card-title">
+      <span class="dot" style="background:var(--amber)"></span>AI 첨삭 결과
+    </div>
+
+    <!-- Scores -->
+    <div class="score-row" id="scoreRow"></div>
+
+    <!-- Corrected version -->
+    <div class="section-label">
+      ✅ 교정된 전문
+      <button class="copy-btn" id="copyBtn" onclick="copyText()">복사</button>
+    </div>
+    <div class="corrected-box" id="correctedBox"></div>
+
+    <!-- Corrections -->
+    <div class="section-label">📝 주요 교정 포인트</div>
+    <div class="corrections-list" id="correctionsList"></div>
+
+    <div class="divider"></div>
+
+    <!-- Vocabulary -->
+    <div class="section-label">📚 추천 표현 &amp; 어휘</div>
+    <div class="vocab-grid" id="vocabGrid"></div>
+  </div>
+
+</main>
+
+<script>
+  // ── State ──────────────────────────────────────
+  let currentType = 'news';
+
+  // ── API Key ────────────────────────────────────
+  function saveApiKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (!key) { setApiStatus('키를 입력하세요', 'err'); return; }
+    localStorage.setItem('openai_api_key', key);
+    setApiStatus('저장됨 ✓', 'ok');
+  }
+
+  function loadApiKey() {
+    const saved = localStorage.getItem('openai_api_key');
+    if (saved) {
+      document.getElementById('apiKeyInput').value = saved;
+      setApiStatus('불러옴 ✓', 'ok');
+    }
+  }
+
+  function setApiStatus(msg, cls) {
+    const el = document.getElementById('apiStatus');
+    el.textContent = msg;
+    el.className = 'api-status ' + cls;
+  }
+
+  function getApiKey() {
+    return localStorage.getItem('openai_api_key') || document.getElementById('apiKeyInput').value.trim();
+  }
+
+  // ── Type selector ──────────────────────────────
+  function setType(type) {
+    currentType = type;
+    document.getElementById('btn-news').classList.toggle('active', type === 'news');
+    document.getElementById('btn-email').classList.toggle('active', type === 'email');
+  }
+
+  // ── Word count ─────────────────────────────────
+  function updateWordCount() {
+    const text = document.getElementById('writingArea').value.trim();
+    const n = text ? text.split(/\s+/).length : 0;
+    document.getElementById('wordCount').textContent = n + ' words';
+  }
+
+  // ── OpenAI API call ────────────────────────────
+  async function callClaude(system, user, maxTokens = 2048) {
+    const apiKey = getApiKey();
+    if (!apiKey) throw new Error('API 키를 먼저 입력하고 저장하세요.');
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: maxTokens,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user',   content: user }
+        ]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'API 오류 (' + res.status + ')');
+    }
+    const data = await res.json();
+    return data.choices[0].message.content;
+  }
+
+  function parseJSON(raw) {
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('응답을 파싱할 수 없습니다. 다시 시도해 주세요.');
+    return JSON.parse(m[0]);
+  }
+
+  // ── Generate Topic ─────────────────────────────
+  async function generateTopic() {
+    const level = document.getElementById('levelSelect').value;
+    const levelLabel = { beginner: '초급', intermediate: '중급', advanced: '고급' }[level];
+
+    document.getElementById('genBtn').disabled = true;
+    document.getElementById('topicBox').innerHTML =
+      '<div class="mini-loading"><div class="spinner"></div><span>주제 생성 중...</span></div>';
+    document.getElementById('tipsContent').innerHTML =
+      '<div class="mini-loading"><div class="spinner"></div><span>팁 로딩 중...</span></div>';
+
+    try {
+      const system = 'You are a business English writing tutor. Respond with valid JSON only — no markdown fences, no extra text.';
+
+      const isEmail = currentType === 'email';
+      const prompt = isEmail
+        ? `Generate a ${levelLabel}-level business email writing scenario. Return this exact JSON:
+{"tag":"EMAIL","topic":"<scenario title in English>","background":"<2–3 sentence context in Korean>","keyPoints":["<English point 1>","<English point 2>","<English point 3>"],"tips":["<Korean tip 1>","<Korean tip 2>","<Korean tip 3>"]}`
+        : `Generate a ${levelLabel}-level business/tech news article writing topic. Return this exact JSON:
+{"tag":"NEWS","topic":"<article title in English>","background":"<2–3 sentence background in Korean>","keyPoints":["<English point 1>","<English point 2>","<English point 3>"],"tips":["<Korean tip 1>","<Korean tip 2>","<Korean tip 3>"]}`;
+
+      const raw = await callClaude(system, prompt, 700);
+      const d = parseJSON(raw);
+
+      const tagClass = currentType === 'news' ? 'news' : 'email';
+      document.getElementById('topicBox').innerHTML = `
+        <span class="topic-tag ${tagClass}">${d.tag} · ${levelLabel}</span>
+        <div class="topic-title">${escHtml(d.topic)}</div>
+        <div class="topic-bg">${escHtml(d.background)}</div>
+        <div class="topic-points-label">포함할 내용:</div>
+        ${d.keyPoints.map(p => `<div class="topic-point">• ${escHtml(p)}</div>`).join('')}
+      `;
+
+      document.getElementById('tipsContent').innerHTML =
+        `<div style="display:flex;flex-direction:column;gap:10px">
+          ${d.tips.map((t, i) => `
+            <div class="tip-item">
+              <span class="tip-num">TIP ${i + 1}</span>
+              <span>${escHtml(t)}</span>
+            </div>`).join('')}
+        </div>`;
+
+      const ph = isEmail
+        ? 'Subject: \n\nDear [Name],\n\n[Start writing here...]\n\nBest regards,\n[Your name]'
+        : '[Write your news article here in English...]';
+      document.getElementById('writingArea').placeholder = ph;
+
+    } catch (e) {
+      document.getElementById('topicBox').innerHTML =
+        `<div class="error-msg">오류: ${escHtml(e.message)}</div>`;
+      document.getElementById('tipsContent').innerHTML =
+        `<div class="error-msg">주제 생성에 실패했습니다.</div>`;
+    }
+
+    document.getElementById('genBtn').disabled = false;
+  }
+
+  // ── Submit for Review ──────────────────────────
+  async function submitForReview() {
+    const text = document.getElementById('writingArea').value.trim();
+    if (text.length < 15) {
+      alert('15자 이상의 영어 텍스트를 입력해 주세요.');
+      return;
+    }
+
+    const topicEl = document.getElementById('topicBox').querySelector('.topic-title');
+    const topicText = topicEl ? topicEl.textContent : '(주제 없음)';
+    const typeLabel = currentType === 'news' ? '뉴스 기사' : '비즈니스 이메일';
+
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loadingRow').classList.add('show');
+    document.getElementById('resultCard').classList.remove('show');
+
+    try {
+      const system = 'You are an expert business English writing tutor. Analyze the student\'s writing and return ONLY valid JSON — no markdown fences, no extra text.';
+
+      const prompt = `Analyze this ${typeLabel} writing. Topic: "${topicText}"
+
+Student's writing:
+"""
+${text}
+"""
+
+Return this exact JSON (no extra keys, no markdown):
+{
+  "scores": { "overall": <0-100>, "grammar": <0-100>, "vocabulary": <0-100>, "flow": <0-100> },
+  "corrected": "<full corrected version of the student's text>",
+  "corrections": [
+    { "original": "<exact problematic phrase>", "corrected": "<improved phrase>", "reason": "<Korean explanation>" }
+  ],
+  "vocabulary": [
+    { "term": "<useful expression or word>", "definition": "<Korean meaning>", "example": "<example sentence>" }
+  ]
+}
+
+Provide 3–6 corrections (most impactful issues only) and 4–8 vocabulary/expression recommendations relevant to the topic.`;
+
+      const raw = await callClaude(system, prompt, 2200);
+      const d = parseJSON(raw);
+      renderResult(d);
+
+    } catch (e) {
+      document.getElementById('resultCard').classList.add('show');
+      document.getElementById('resultCard').innerHTML = `
+        <div class="card-title"><span class="dot" style="background:var(--pink)"></span>오류 발생</div>
+        <div class="error-msg">${escHtml(e.message)}</div>
+      `;
+    }
+
+    document.getElementById('loadingRow').classList.remove('show');
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Render Result ──────────────────────────────
+  function renderResult(d) {
+    const s = d.scores;
+
+    // Re-render card safely
+    document.getElementById('resultCard').innerHTML = `
+      <div class="card-title">
+        <span class="dot" style="background:var(--amber)"></span>AI 첨삭 결과
+      </div>
+      <div class="score-row" id="scoreRow"></div>
+      <div class="section-label">
+        ✅ 교정된 전문
+        <button class="copy-btn" id="copyBtn" onclick="copyText()">복사</button>
+      </div>
+      <div class="corrected-box" id="correctedBox"></div>
+      <div class="section-label">📝 주요 교정 포인트</div>
+      <div class="corrections-list" id="correctionsList"></div>
+      <div class="divider"></div>
+      <div class="section-label">📚 추천 표현 &amp; 어휘</div>
+      <div class="vocab-grid" id="vocabGrid"></div>
+    `;
+
+    document.getElementById('scoreRow').innerHTML = [
+      ['s-overall', '종합', s.overall],
+      ['s-grammar', '문법', s.grammar],
+      ['s-vocab',   '어휘', s.vocabulary],
+      ['s-flow',    '흐름', s.flow],
+    ].map(([cls, label, val]) =>
+      `<span class="score-badge ${cls}">${label} ${val}점</span>`
+    ).join('');
+
+    document.getElementById('correctedBox').textContent = d.corrected;
+
+    document.getElementById('correctionsList').innerHTML = d.corrections && d.corrections.length
+      ? d.corrections.map(c => `
+          <div class="correction-item">
+            <div class="corr-original">✗ ${escHtml(c.original)}</div>
+            <div class="corr-fixed">✓ ${escHtml(c.corrected)}</div>
+            <div class="corr-reason">${escHtml(c.reason)}</div>
+          </div>`).join('')
+      : '<div style="color:var(--green);font-size:0.84rem;padding:6px 0">주요 교정 사항이 없습니다. 잘 작성되었습니다! 🎉</div>';
+
+    document.getElementById('vocabGrid').innerHTML = d.vocabulary && d.vocabulary.length
+      ? d.vocabulary.map(v => `
+          <div class="vocab-item">
+            <div class="vocab-term">${escHtml(v.term)}</div>
+            <div class="vocab-def">${escHtml(v.definition)}</div>
+            <div class="vocab-ex">"${escHtml(v.example)}"</div>
+          </div>`).join('')
+      : '<div style="color:var(--muted);font-size:0.84rem">추천 어휘가 없습니다.</div>';
+
+    document.getElementById('resultCard').classList.add('show');
+  }
+
+  // ── Copy corrected text ────────────────────────
+  function copyText() {
+    const box = document.getElementById('correctedBox');
+    if (!box) return;
+    navigator.clipboard.writeText(box.textContent).then(() => {
+      const btn = document.getElementById('copyBtn');
+      if (btn) { btn.textContent = '복사됨 ✓'; setTimeout(() => btn.textContent = '복사', 1800); }
+    });
+  }
+
+  // ── Utility ────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Init ───────────────────────────────────────
+  loadApiKey();
+</script>
+</body>
+</html>
